@@ -1,0 +1,11 @@
+*.pyc
+*.pyo
+backend/__pycache__/
+venv/
+.vscode/
+*.log
+myenv/
+tmp/
+backend/ai/course_materials/
+backend/ai/programming_resources/
+env/
