@@ -4,7 +4,7 @@ FROM python:3.9-slim-buster AS builder
 WORKDIR /app
 
 COPY req.txt .
-RUN pip install -r req.txt --no-cache-dir
+RUN pip install -r requirements.txt --no-cache-dir
 
 # Stage 2: Create final image
 FROM python:3.9-slim-buster
