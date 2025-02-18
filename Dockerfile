@@ -1,26 +1,25 @@
-# Use a specific Python version
-FROM python:3.9.6-slim-buster
+# Stage 1: Build dependencies
+FROM python:3.9-slim-buster AS builder
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the requirements file first to leverage Docker's caching.
-COPY requirements.txt .
+COPY req.txt .
+RUN pip install -r req.txt --no-cache-dir
 
-# Install project dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Stage 2: Create final image
+FROM python:3.9-slim-buster
 
-# Copy the rest of the application code
-COPY . .
+WORKDIR /app
 
-# Expose the port your Flask app listens on. Flask's default is 5000.
-EXPOSE 5000
+# Copy only the necessary files from the builder stage
+COPY --from=builder /app/requirements.txt .  # Copy only the requirements
+COPY --from=builder /app/.venv /app/.venv
+COPY . .  # Copy your application code
 
-# Set the environment variable for Flask to run in production mode
-ENV FLASK_ENV production
+# Activate the virtual environment if you created one
+# RUN source .venv/bin/activate
 
-# Define the command to run when the container starts. Gunicorn is recommended for production.
-CMD ["gunicorn", "--bind=0.0.0.0:5000", "app:app"] # Replace your_app_name with the name of your Flask app file (e.g., main.py) and "app" with the name of your Flask app instance (e.g., app = Flask(__name__))
+# Set environment variables if needed
+# ENV ...
 
-# Alternatively, for development, you can use the Flask development server (not recommended for production):
-# CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
+CMD ["python", "app.py"]
